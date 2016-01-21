@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberInputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -28,6 +29,8 @@ import java.io.SequenceInputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 /**
@@ -36,7 +39,7 @@ import java.util.ArrayList;
  */
 public class App 
 {
-    public static void main( String[] args ) throws IOException
+    public static void main( String[] args ) throws IOException, ClassNotFoundException
     {
 
         File path = new File(".");
@@ -79,12 +82,42 @@ public class App
         
         fReader.close();
         StringReader stringReader = new StringReader("test.txt");
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("test.txt"));
+        BufferedReader bufferedReader = null;
 
+        
         bufferedReader =   new BufferedReader(new InputStreamReader(System.in));
 
         
-        System.out.println(bufferedReader.readLine());
+        //System.out.println(bufferedReader.readLine());
+        
+        FileChannel fChannel = new FileOutputStream("test.txt").getChannel();
+        ByteBuffer buf = ByteBuffer.allocate(1000);
+        buf.asIntBuffer().put(1000);
+        fChannel.write(ByteBuffer.wrap("Some text".getBytes()));
+        fChannel.write(buf);
+        fChannel.close();
+        
+        Entity entity = new Entity();
+        entity.setI(1);
+        entity.setS("hzl");
+        
+        ObjectOutputStream outputStream2 = new ObjectOutputStream(new FileOutputStream("obj.txt"));
+        outputStream2.writeObject(entity);
+        entity = new Entity();
+        entity.setI(1);
+        entity.setS("hzl");
+        outputStream2.writeObject(entity);
+        outputStream2.close();
+        
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("obj.txt"));
+        entity = (Entity) inputStream.readObject();
+        Entity entity2 = (Entity) inputStream.readObject();
+        inputStream.close();
+       
+        inputStream = new ObjectInputStream(new FileInputStream("obj.txt"));
+        Entity entity3 = (Entity) inputStream.readObject();
+        inputStream.close();
+        
         
         
         
